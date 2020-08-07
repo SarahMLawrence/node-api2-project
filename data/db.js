@@ -2,6 +2,17 @@ const knex = require('knex');
 const knexConfig = require('../knexfile.js');
 const db = knex(knexConfig.development);
 
+function find(query = {}) {
+	const { page = 1, limit = 100, sortBy = "id", sortDir = "asc" } = query
+	const offset = limit * (page - 1)
+
+	return db("posts")
+		.orderBy(sortBy, sortDir)
+		.limit(limit)
+		.offset(offset)
+		.select()
+}
+
 module.exports = {
   find,
   findById,
@@ -18,7 +29,7 @@ function find() {
 }
 
 function findById(id) {
-  return db('posts').where({ id: Number(id) });
+  return db('posts').where({ id: Number(id) }).first()
 }
 
 function insert(post) {
@@ -50,7 +61,8 @@ function findCommentById(id) {
   return db('comments')
     .join('posts', 'posts.id', 'post_id')
     .select('comments.*', 'title as post')
-    .where('comments.id', id);
+    .where('comments.id', id)
+    .first()
 }
 
 function insertComment(comment) {
