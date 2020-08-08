@@ -1,10 +1,10 @@
 const express = require("express");
 const posts = require("../data/db");
-const cors = require("cors");
 const e = require("express");
-const { text } = require("express");
+const db = require("../data/db");
 
 const router = express.Router();
+
 
 //-------------------------------------------------------------------------//
 //    GET /api/posts                                                       //
@@ -97,6 +97,108 @@ router.post("/api/posts", (req, res) => {
         error: "There was an error while saving the post to the database",
       });
     });
+});
+
+//----------------------------------------------------------------------------//
+//    POST /api/posts/:id/comments                                            //
+//    Creates a comment for the post with the specified id using information  //
+//    sent inside of the request body.                                        //
+//----------------------------------------------------------------------------//
+router.post("/api/posts/:id/comments", (req, res) => {
+  const { id: post_id } = req.params;
+  const { body: comment } = req;
+  posts
+    .findById(post_id)
+    .then((data) => {
+      if (data.length !== 0) {
+        if (!comment.text) {
+          res
+            .status(400)
+            .json({ errorMessage: "Please provide text for the comment." });
+        } else {
+          db.insertComment({ ...comment, post_id })
+            .then(({ id: comment_id }) => {
+              db.findCommentById(comment_id).then((newComment) => {
+                res.status(201).json(newComment);
+              });
+            })
+            .catch((data) => {
+              res.status(500).json({
+                error:
+                  "There was an error while saving the comment to the database",
+              });
+            });
+        }
+      } else {
+        res
+          .status(404)
+          .json({ message: "The post with the specified ID does not exist." });
+      }
+    })
+    .catch((data) => {
+      res.status(500).json({
+        error: "There was an error while saving the comment to the database",
+      });
+    });
+});
+
+//----------------------------------------------------------------------------------//
+//    DELETE /api/posts/:id                                                         //
+//    Removes the post with the specified id and returns the deleted post object.   //
+//    You may need to make additional calls to the database in order to satisfy     //
+//    this requirement.                                                             //
+//----------------------------------------------------------------------------------//
+router.delete("/api/posts/:id", (req, res) => {
+  posts
+    .remove(req.params.id)
+    .then((count) => {
+      if (count > 0) {
+        res.status(200).json({
+          message: "The post has been deleted",
+        });
+      } else {
+        res.status(404).json({
+          message: "The post could not be found",
+        });
+      }
+    })
+    .catch((error) => {
+      console.log(error);
+      res.status(500).json({
+        message: "Error removing the user",
+      });
+    });
+});
+
+//--------------------------------------------------------------------//
+//    PUT /api/posts/:id                                              //
+//    Updates the post with the specified id using data from the      //
+//    request body. Returns the modified document, NOT the original.  //
+//--------------------------------------------------------------------//
+router.put("/api/posts/:id", (req, res) => {
+  if (req.body.title === "" || req.body.contents === "") {
+    res.status(400).json({
+      errorMessage: "Please provide title and contents for the post.",
+    });
+  } else {
+    posts
+      .update(req.params.id, req.body)
+      .then((post) => {
+        if (post === 0) {
+          res.status(404).json({
+            message: "The post with the specified ID does not exist.",
+          });
+        } else {
+          res.status(200).json(post);
+        }
+      })
+      .catch((err) => {
+        console.log(err);
+        res.status(500).json({
+          error: "The post information could not be modified.",
+        });
+      });
+  }
 });
 
 module.exports = router;

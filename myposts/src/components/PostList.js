@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { Axios } from "../utils/Axios";
-// import { useHistory, Link } from "react-router-dom";
-import { Button, Card } from "react-bootstrap";
+import Posts from "./Posts";
 
 function PostList() {
   const [posts, setPost] = useState([]);
@@ -17,38 +16,15 @@ function PostList() {
         setPost(res.data);
       });
   }, []);
+
   return (
-    <div className="main">
-      {posts ? (
-        posts.map((post) => {
-          return (
-            <div className="row">
-              <div className="column">
-                <div className="content" key={post.id}>
-                  <h3 className="card-title">Title: {post.title}</h3>
-                  <p className="card-text">
-                    Contents: {post.contents}
-                    <br></br>
-                  </p>
-                  {/* <button onClick={(e) => deleteUser(e, user.id)}>
-                  Delete
-                </button>
-                <button
-                  onClick={(e) => {
-                    history.push(`/update-user/?${user.id}`);
-                  }}
-                >
-                  update
-                </button> */}
-                  {/* <button> <Link to={`/update-user/${user.id}`} >Edit</Link></button> */}
-                </div>
-              </div>
-            </div>
-          );
-        })
-      ) : (
-        <h1>HELLO USERS</h1>
-      )}
+    <div className="container">
+        
+      <h1> List Of Posts </h1>
+      {posts.map((post) => (
+        <Posts post={post} key={post.id} />
+      ))}
+  
     </div>
   );
 }
