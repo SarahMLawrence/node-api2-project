@@ -53,12 +53,11 @@ router.get("/api/posts/:id", (req, res) => {
 //    Returns an array of all the comment objects associated   //
 //    with the post with the specified id.                     //
 //-------------------------------------------------------------//
-router.get("/api/posts/:postID/comments", (req, res) => {
-  posts
-    .findCommentById(req.params.postID)
-    .then((comments) => {
-      if (comments) {
-        res.status(200).json(comments);
+router.get("/api/posts/:id/comments", (req, res) => {
+  posts.findPostComments(req.params.id)
+    .then(comment => {
+      if (comment) {
+        res.status(200).json(comment);
       } else {
         res.status(404).json({
           message: "The post with the specified ID does not exist.",
@@ -81,7 +80,7 @@ router.post("/api/posts", (req, res) => {
   posts
     .insert(req.body)
     .then((post) => {
-      if (!req.body.title || !req.body.contents) {
+      if (!req.body.id || !req.body.title || !req.body.contents) {
         res.status(400).json({
           error: "Please provide title and contents for the post",
         });

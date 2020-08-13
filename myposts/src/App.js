@@ -1,9 +1,10 @@
 import React, { useEffect, useState } from "react";
-import logo from "./logo.svg";
 import "./App.css";
 import PostList from "./components/PostList";
+import AddPostForm from "./components/AddPostForm";
 import { Axios } from "./utils/Axios";
 import { Route, Link } from "react-router-dom";
+
 
 const App = () => {
   const [postList, setPostList] = useState([]);
@@ -23,7 +24,7 @@ const App = () => {
             Home
           </Link>
           <Link to="/post-list">Post List</Link>
-          <Link tp="/add-post">Add Post</Link>
+          <Link to="/add-post">Add Post</Link>
         </div>
       </nav>
 
@@ -33,7 +34,7 @@ const App = () => {
         path="/post-list"
         render={(props) => <PostList {...props} postList={postList} />}
       />
-      {/* <Route exact path="/add-post" component={AddPost} /> */}
+      <Route exact path="/add-post" component={AddPostForm} />
       {/* <Route exact path="/update-user/:id" component={UserUpdate}/> */}
     </div>
   );
